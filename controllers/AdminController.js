@@ -92,6 +92,100 @@ const cerrar_mensaje_admin = async function (req , res) {
    }
 }
 
+const listar_todos_admin_filtro = async function(req , res){
+    
+  if(req.user){
+    if(req.user.role=='gerente'){
+      let tipo = req.params['tipo'];
+      let filtro = req.params['filtro'];
+      
+      if(tipo== null || tipo =='null'){
+        let reg = await admin.find(); 
+        res.status(200).send({data:reg});
+      } else {
+         if(tipo == 'apellidos'){
+            let reg = await admin.find({apellidos: new RegExp(filtro, 'i')});
+            res.status(200).send({data:reg});
+    
+         }else if(tipo == 'correo'){
+          let reg = await admin.find({email: new RegExp(filtro, 'i')});
+          res.status(200).send({data:reg});
+         }
+      }
+    }else{
+      res.status(500).send({message:'NoAccess'});
+    }
+  }else{
+    res.status(500).send({message:'NoAccess'});
+  }
+}
+
+const eliminar_administrador = async function (req, res){
+  if (req.user){
+    if (req.user.role == 'gerente') {
+       
+      var id = req.params['id']; 
+
+      let reg = await admin.findByIdAndRemove({_id:id}); 
+      res.status(200).send({message:'se elimino al administrador', data:reg}); 
+    
+    }else {
+      res.status(500).send({message:'NoAccess'});
+    }
+  } else {
+    res.status(500).send({message:'NoAccess'});
+  }
+}
+
+const obtener_admin = async function (req, res ){
+  if (req.user){
+    if (req.user.role == 'gerente') {
+       
+      var id = req.params['id']; 
+     
+     try {
+      var reg = await admin.findById({_id:id}); 
+      res.status(200).send({data: reg });
+     } catch (error) {
+      res.status(200).send({data: undefined });
+     } 
+
+    }else {
+      res.status(500).send({message:'NoAccess'});
+    }
+  } else {
+    res.status(500).send({message:'NoAccess'});
+  }
+}
+
+const actualizar_admin = async function(req, res ){
+  if (req.user){
+    if (req.user.role == 'gerente') {
+       
+      var id = req.params['id']; 
+      var data = req.body;
+
+       var reg = await admin.findByIdAndUpdate({_id:id},{
+         nombre: data.nombre,
+         apellidos: data.apellidos, 
+         email: data.email, 
+         password: data.password, 
+         telefono: data.telefono, 
+         rol: data.rol,
+         ci: data.ci
+        })
+        res.status(200).send({message:'La info del admin se actualizo correctamente', data: reg}); 
+
+    }else {
+      res.status(500).send({message:'NoAccess'});
+    }
+  } else {
+    res.status(500).send({message:'NoAccess'});
+  }
+
+}
+
+
 //**********VENTAS */
 
 const obtener_ventas_admin = async function (req , res) {
@@ -134,5 +228,9 @@ module.exports = {
    login_admin,
    obtener_mensajes_admin,
    cerrar_mensaje_admin,
-   obtener_ventas_admin
+   obtener_ventas_admin,
+   listar_todos_admin_filtro,
+   eliminar_administrador,
+   obtener_admin,
+   actualizar_admin
 }
