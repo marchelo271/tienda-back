@@ -22,7 +22,7 @@ const registro_admin = async function(req,res){
                 if(hash){
                   data.password = hash; 
                   var reg = await admin.create(data); 
-                  res.status(200).send({data:reg});
+                  res.status(200).send({message: 'Se creó el administrador exitosamente',data:reg});
                 }else {
                   res.status(200).send({message: 'Error server'});
                 }
